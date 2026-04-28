@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>AlfredGO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <p class="header-eyebrow">Alfred State College</p>
+      <div class="header-brand">
+        <img class="header-mascot" src="images/alfredbull.png" alt="Saxon mascot" />
+        <h1 class="header-title">AlfredGO</h1>
+      </div>
+    </header>
+
+    <div class="sticky-controls">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
+        <input
+          id="searchInput"
+          class="search-input"
+          type="search"
+          placeholder="Search tools..."
+          aria-label="Search campus tools"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+      </div>
+      <div class="category-tabs" id="categoryTabs" role="tablist" aria-label="Filter by category">
+        <button class="tab active" data-category="All" role="tab" aria-selected="true">All</button>
+        <button class="tab" data-category="Academics" role="tab" aria-selected="false">Academics</button>
+        <button class="tab" data-category="Finance" role="tab" aria-selected="false">Finance</button>
+        <button class="tab" data-category="Campus Life" role="tab" aria-selected="false">Campus Life</button>
+        <button class="tab" data-category="Communication" role="tab" aria-selected="false">Communication</button>
+        <button class="tab" data-category="Support" role="tab" aria-selected="false">Support</button>
+      </div>
+    </div>
+
+    <main class="tools-grid" id="toolsGrid" aria-live="polite" aria-label="Campus tools"></main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
