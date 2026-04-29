@@ -8,5 +8,6 @@ module.exports = [
   { id: 7, name: "Dining Services", description: "View menus and hours", category: "Campus Life", tags: ["food", "menu", "meals"], link: "https://www.acesalfred.com/campus-dining" },
   { id: 8, name: "Housing Portal", description: "Manage housing", category: "Campus Life", tags: ["dorm", "housing", "room"], link: "https://my.alfredstate.edu/" },
   { id: 9, name: "Library Services", description: "Access library resources", category: "Academics", tags: ["books", "research", "study"], link: "https://library.alfredstate.edu/c.php?g=372677" },
-  { id: 10, name: "IT Help Desk", description: "Get tech support", category: "Support", tags: ["tech", "help", "support"], link: "https://www.alfredstate.edu/help-desk" }
+  { id: 10, name: "IT Help Desk", description: "Get tech support", category: "Support", tags: ["tech", "help", "support"], link: "https://www.alfredstate.edu/help-desk" },
+  { id: 11, name: "My Learning", description: "Access your courses online", category: "Academics", tags: ["lms", "courses", "online", "d2l", "brightspace", "learning"], link: "https://mylearning.suny.edu/d2l/login" }
 ];

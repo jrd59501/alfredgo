@@ -138,6 +138,7 @@ const TOOL_ICONS = {
   8:  "🏠",
   9:  "📚",
   10: "🛠️",
+  11: "💻",
 };
 
 const CATEGORY_STYLE = {
