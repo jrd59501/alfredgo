@@ -343,10 +343,16 @@ body {
 }
 
 .tool-icon {
-  font-size: 2rem;
-  line-height: 1;
   display: block;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.35rem;
+}
+
+.tool-icon svg {
+  width: 2rem;
+  height: 2rem;
+  stroke: var(--card-accent, var(--blue));
+  stroke-width: 1.75;
+  display: block;
 }
 
 .tool-name {

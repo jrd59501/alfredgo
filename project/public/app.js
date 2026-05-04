@@ -134,18 +134,39 @@ let allTools = [];
 let activeCategory = "All";
 let currentRole = "student"; // tracks which role is selected in the toggle
 
-// Emoji icons mapped to each tool by ID
+// Lucide icon names mapped to each tool by ID
+// Full icon list at lucide.dev/icons
 const TOOL_ICONS = {
   // Student
-  1:  "💻", 2:  "✉️", 3:  "🎓", 4:  "📋",
-  5:  "📅", 6:  "💰", 7:  "💳", 8:  "🍽️",
-  9:  "🏠", 10: "🛠️",
+  1:  "book-open",       // My Learning
+  2:  "mail",            // Email
+  3:  "graduation-cap",  // Degree Works
+  4:  "calendar-check",  // Registration
+  5:  "calendar",        // Class Schedule
+  6:  "banknote",        // Financial Aid
+  7:  "credit-card",     // Student Billing
+  8:  "utensils",        // Dining Services
+  9:  "home",            // Housing Portal
+  10: "wrench",          // IT Help Desk
   // Staff
-  11: "✉️", 12: "💬", 13: "🖥️", 14: "🛠️",
-  15: "🖨️", 16: "📘", 17: "💼", 18: "🚨",
-  19: "🅿️", 20: "🚔", 21: "🎉", 22: "🏥",
+  11: "mail",            // Outlook
+  12: "message-square",  // Microsoft Teams
+  13: "layout-dashboard",// BannerWeb
+  14: "wrench",          // IT Help Desk
+  15: "printer",         // Pharos Packages
+  16: "book-open",       // Pharos Help
+  17: "briefcase",       // LinkedIn Learning
+  18: "bell-ring",       // RAVE Alerts
+  19: "car",             // Campus Parking
+  20: "shield",          // University Police
+  21: "flag",            // Pioneer Link
+  22: "activity",        // Health Portal
   // Admin extras
-  23: "⭐", 24: "⏰", 25: "⚖️", 26: "📄", 27: "📋",
+  23: "star",            // Starfish
+  24: "clock",           // Clockwork
+  25: "scale",           // Title IX
+  26: "file-text",       // Academic Complaint Form
+  27: "clipboard",       // Administrative Complaint Form
 };
 
 // Color and background for each category badge on tool cards
@@ -192,7 +213,7 @@ function createToolCard(tool) {
   const icon = TOOL_ICONS[tool.id] ?? "🔗";
 
   card.innerHTML = `
-    <span class="tool-icon" aria-hidden="true">${icon}</span>
+    <span class="tool-icon" aria-hidden="true"><i data-lucide="${icon}"></i></span>
     <h2 class="tool-name">${tool.name}</h2>
     <p class="tool-desc">${tool.description}</p>
     <span class="tool-category" style="color:${style.color};background:${style.bg}">${tool.category}</span>
@@ -234,6 +255,9 @@ function renderTools(tools) {
   }
 
   tools.forEach((tool) => toolsGrid.appendChild(createToolCard(tool)));
+
+  // Convert all data-lucide attributes into actual SVG elements
+  lucide.createIcons();
 }
 
 // Filters the tool list by search text and active category
