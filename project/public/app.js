@@ -153,24 +153,55 @@ let currentRole    = "student"; // which role is selected in the toggle
 // Lucide icon names mapped to each tool by ID
 // Full icon list at lucide.dev/icons
 const TOOL_ICONS = {
-  // Student
+  // Student — Academics
   1:  "book-open",        // My Learning
-  2:  "mail",             // Email
   3:  "graduation-cap",   // Degree Works
-  4:  "calendar-check",   // Registration
+  4:  "calendar-check",   // Schedule Planner
   5:  "calendar",         // Class Schedule
+  28: "users",            // Tutor Request
+  29: "book-marked",      // Alfred Catalogue
+  30: "library",          // Hinkle Library
+  31: "shopping-cart",    // Order Your Books
+  32: "briefcase",        // LinkedIn Learning
+  33: "award",            // Apply To Graduate
+  // Student — Finance
   6:  "banknote",         // Financial Aid
   7:  "credit-card",      // Student Billing
+  35: "star",             // ScholarshipUniverse
+  36: "file-text",        // FAFSA Application
+  37: "scroll",           // NYS TAP Application
+  38: "trophy",           // Excelsior Scholarship
+  39: "medal",            // NYS Scholarships
+  40: "book-open",        // Financial Aid Guides
+  // Student — Campus Life
   8:  "utensils",         // Dining Services
   9:  "home",             // Housing Portal
+  34: "party-popper",     // Commencement Info
+  41: "flag",             // Pioneer Link
+  42: "dumbbell",         // Intramurals
+  43: "dumbbell",         // Fitness Center
+  44: "shopping-bag",     // Campus Store
+  45: "car",              // Rental Cars
+  // Student — Communication
+  2:  "mail",             // Email
+  51: "message-square",   // Microsoft Teams
+  // Student — Career
+  46: "search",           // JobLink
+  47: "zap",              // Skills First
+  // Student — Support
   10: "wrench",           // IT Help Desk
+  48: "heart-pulse",      // Health Portal
+  49: "bell-ring",        // RAVE Alerts
+  50: "phone",            // 988 Hotline
   // Staff
   11: "mail",             // Outlook
   12: "message-square",   // Microsoft Teams
   13: "layout-dashboard", // BannerWeb
+  52: "shield-check",     // Veteran Certification
   14: "wrench",           // IT Help Desk
   15: "printer",          // Pharos Packages
   16: "book-open",        // Pharos Help
+  53: "shield",           // Veteran Services
   17: "briefcase",        // LinkedIn Learning
   18: "bell-ring",        // RAVE Alerts
   19: "car",              // Campus Parking
@@ -180,6 +211,7 @@ const TOOL_ICONS = {
   // Admin extras
   23: "star",             // Starfish
   24: "clock",            // Clockwork
+  54: "credit-card",      // Pay Commencement Fee
   25: "scale",            // Title IX
   26: "file-text",        // Academic Complaint Form
   27: "clipboard",        // Administrative Complaint Form
@@ -187,10 +219,11 @@ const TOOL_ICONS = {
 
 // Color and background for each category badge on tool cards
 const CATEGORY_STYLE = {
-  "Communication":    { color: "#7c3aed", bg: "#ede9fe" },
   "Academics":        { color: "#0369a1", bg: "#e0f2fe" },
   "Finance":          { color: "#047857", bg: "#d1fae5" },
   "Campus Life":      { color: "#b45309", bg: "#fef3c7" },
+  "Communication":    { color: "#7c3aed", bg: "#ede9fe" },
+  "Career":           { color: "#0891b2", bg: "#e0f9ff" },
   "Support":          { color: "#b91c1c", bg: "#fee2e2" },
   "Operations":       { color: "#0369a1", bg: "#e0f2fe" },
   "Professional Dev": { color: "#047857", bg: "#d1fae5" },
