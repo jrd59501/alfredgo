@@ -337,6 +337,11 @@ body {
   background: var(--card-accent, var(--blue));
 }
 
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .tool-card:active {
   transform: scale(0.96);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);

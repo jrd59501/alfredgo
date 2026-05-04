@@ -210,7 +210,7 @@ function createToolCard(tool) {
   const style = CATEGORY_STYLE[tool.category] ?? { color: "#0f4c81", bg: "#dbeafe" };
   card.style.setProperty("--card-accent", style.color);
 
-  const icon = TOOL_ICONS[tool.id] ?? "🔗";
+  const icon = TOOL_ICONS[tool.id] ?? "link";
 
   card.innerHTML = `
     <span class="tool-icon" aria-hidden="true"><i data-lucide="${icon}"></i></span>
