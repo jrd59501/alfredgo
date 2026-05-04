@@ -1,4 +1,5 @@
 // ── Academic Calendar ──────────────────────────────────────────
+// List of important dates for the current academic year
 const ACADEMIC_EVENTS = [
   // Fall 2025
   { date: "2025-08-18", name: "Residence Halls Open — New Students",        type: "housing"      },
@@ -52,6 +53,7 @@ const ACADEMIC_EVENTS = [
   { date: "2026-05-20", name: "Final Graduation Lists Due to Registrar",     type: "deadline"     },
 ];
 
+// Colors and labels used for each event type in the strip
 const EVENT_STYLE = {
   deadline:     { color: "#ea580c", bg: "#fff7ed", label: "Deadline"     },
   break:        { color: "#16a34a", bg: "#dcfce7", label: "Break"        },
@@ -63,6 +65,8 @@ const EVENT_STYLE = {
   ceremony:     { color: "#b45309", bg: "#fef3c7", label: "Ceremony"     },
 };
 
+// Returns the next few upcoming events from today
+// Shows events within 7 days if there are at least 2, otherwise shows next 5
 function getUpcomingEvents() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -78,6 +82,7 @@ function getUpcomingEvents() {
   return within7.length >= 2 ? within7 : upcoming.slice(0, 5);
 }
 
+// Formats a date as "Today", "Tomorrow", or "Mon DD"
 function formatEventDate(dateObj) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -89,6 +94,7 @@ function formatEventDate(dateObj) {
   return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+// Builds and renders the upcoming events strip at the top of the page
 function renderUpcoming() {
   const strip = document.getElementById("upcomingStrip");
   const sub   = document.getElementById("upcomingSub");
@@ -126,8 +132,9 @@ const categoryTabs = document.getElementById("categoryTabs");
 
 let allTools = [];
 let activeCategory = "All";
-let currentRole = "student";
+let currentRole = "student"; // tracks which role is selected in the toggle
 
+// Emoji icons mapped to each tool by ID
 const TOOL_ICONS = {
   // Student
   1:  "💻", 2:  "✉️", 3:  "🎓", 4:  "📋",
@@ -141,6 +148,7 @@ const TOOL_ICONS = {
   23: "⭐", 24: "⏰", 25: "⚖️", 26: "📄", 27: "📋",
 };
 
+// Color and background for each category badge on tool cards
 const CATEGORY_STYLE = {
   "Communication":    { color: "#7c3aed", bg: "#ede9fe" },
   "Academics":        { color: "#0369a1", bg: "#e0f2fe" },
@@ -154,6 +162,8 @@ const CATEGORY_STYLE = {
   "Compliance":       { color: "#be185d", bg: "#fce7f3" },
 };
 
+// Builds the category filter tabs from the current tool list
+// Runs every time the role changes so tabs always match what's loaded
 function buildCategoryTabs(tools) {
   const categories = ["All", ...new Set(tools.map(t => t.category))];
   categoryTabs.innerHTML = "";
@@ -168,6 +178,7 @@ function buildCategoryTabs(tools) {
   });
 }
 
+// Creates a single tool card element
 function createToolCard(tool) {
   const card = document.createElement("article");
   card.className = "tool-card";
@@ -187,6 +198,7 @@ function createToolCard(tool) {
     <span class="tool-category" style="color:${style.color};background:${style.bg}">${tool.category}</span>
   `;
 
+  // Open the tool's link in a new tab when clicked or activated by keyboard
   const handleAction = () => {
     if (tool.link && tool.link !== "#") {
       window.open(tool.link, "_blank", "noopener,noreferrer");
@@ -206,6 +218,7 @@ function createToolCard(tool) {
   return card;
 }
 
+// Clears the grid and renders a new set of tool cards
 function renderTools(tools) {
   toolsGrid.innerHTML = "";
 
@@ -223,21 +236,25 @@ function renderTools(tools) {
   tools.forEach((tool) => toolsGrid.appendChild(createToolCard(tool)));
 }
 
+// Filters the tool list by search text and active category
 function filterTools(query, category) {
   const q = query.trim().toLowerCase();
   return allTools.filter((tool) => {
     const inCategory = category === "All" || tool.category === category;
     if (!q) return inCategory;
     const nameMatch = tool.name.toLowerCase().includes(q);
+    // Tags let users search natural words like "food" instead of "Dining Services"
     const tagMatch = tool.tags.some((tag) => tag.toLowerCase().includes(q));
     return inCategory && (nameMatch || tagMatch);
   });
 }
 
+// Re-renders the grid based on the current search and category
 function applyFilters() {
   renderTools(filterTools(searchInput.value, activeCategory));
 }
 
+// Handle category tab clicks
 categoryTabs.addEventListener("click", (e) => {
   const tab = e.target.closest(".tab");
   if (!tab) return;
@@ -249,9 +266,11 @@ categoryTabs.addEventListener("click", (e) => {
   applyFilters();
 });
 
+// Re-filter as the user types
 searchInput.addEventListener("input", applyFilters);
 
-// ── Role toggle ─────────────────────────────────────────────────
+// Handle role toggle (Student / Staff / Admin)
+// Switches the tool set and resets search and category
 document.getElementById("roleToggle").addEventListener("click", (e) => {
   const btn = e.target.closest(".role-btn");
   if (!btn) return;
@@ -264,6 +283,7 @@ document.getElementById("roleToggle").addEventListener("click", (e) => {
   loadTools();
 });
 
+// Fetches the tool list from the server for the current role
 async function loadTools() {
   try {
     const res = await fetch(`/api/tools?role=${currentRole}`);
