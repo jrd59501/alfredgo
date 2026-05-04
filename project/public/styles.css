@@ -404,6 +404,44 @@ body {
   font-weight: 400;
 }
 
+/* ── Role toggle ── */
+.role-toggle {
+  display: flex;
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  position: relative;
+  z-index: 1;
+  margin-top: 0.3rem;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 0.28rem 0.85rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.role-btn:active {
+  transform: scale(0.94);
+}
+
+.role-btn.active {
+  background: #fff;
+  color: var(--blue-dark);
+}
+
 /* ── Desktop fallback (centered phone-sized view) ── */
 @media (min-width: 480px) {
   .app {

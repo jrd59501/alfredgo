@@ -126,27 +126,47 @@ const categoryTabs = document.getElementById("categoryTabs");
 
 let allTools = [];
 let activeCategory = "All";
+let currentRole = "student";
 
 const TOOL_ICONS = {
-  1:  "💻",
-  2:  "✉️",
-  3:  "🎓",
-  4:  "📋",
-  5:  "📅",
-  6:  "💰",
-  7:  "💳",
-  8:  "🍽️",
-  9:  "🏠",
-  10: "🛠️",
+  // Student
+  1:  "💻", 2:  "✉️", 3:  "🎓", 4:  "📋",
+  5:  "📅", 6:  "💰", 7:  "💳", 8:  "🍽️",
+  9:  "🏠", 10: "🛠️",
+  // Staff
+  11: "✉️", 12: "💬", 13: "🖥️", 14: "🛠️",
+  15: "🖨️", 16: "📘", 17: "💼", 18: "🚨",
+  19: "🅿️", 20: "🚔", 21: "🎉", 22: "🏥",
+  // Admin extras
+  23: "⭐", 24: "⏰", 25: "⚖️", 26: "📄", 27: "📋",
 };
 
 const CATEGORY_STYLE = {
-  "Communication": { color: "#7c3aed", bg: "#ede9fe" },
-  "Academics":     { color: "#0369a1", bg: "#e0f2fe" },
-  "Finance":       { color: "#047857", bg: "#d1fae5" },
-  "Campus Life":   { color: "#b45309", bg: "#fef3c7" },
-  "Support":       { color: "#b91c1c", bg: "#fee2e2" },
+  "Communication":    { color: "#7c3aed", bg: "#ede9fe" },
+  "Academics":        { color: "#0369a1", bg: "#e0f2fe" },
+  "Finance":          { color: "#047857", bg: "#d1fae5" },
+  "Campus Life":      { color: "#b45309", bg: "#fef3c7" },
+  "Support":          { color: "#b91c1c", bg: "#fee2e2" },
+  "Operations":       { color: "#0369a1", bg: "#e0f2fe" },
+  "Professional Dev": { color: "#047857", bg: "#d1fae5" },
+  "Safety":           { color: "#b91c1c", bg: "#fee2e2" },
+  "Campus":           { color: "#b45309", bg: "#fef3c7" },
+  "Compliance":       { color: "#be185d", bg: "#fce7f3" },
 };
+
+function buildCategoryTabs(tools) {
+  const categories = ["All", ...new Set(tools.map(t => t.category))];
+  categoryTabs.innerHTML = "";
+  categories.forEach((cat, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (i === 0 ? " active" : "");
+    btn.dataset.category = cat;
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    btn.textContent = cat;
+    categoryTabs.appendChild(btn);
+  });
+}
 
 function createToolCard(tool) {
   const card = document.createElement("article");
@@ -231,11 +251,25 @@ categoryTabs.addEventListener("click", (e) => {
 
 searchInput.addEventListener("input", applyFilters);
 
+// ── Role toggle ─────────────────────────────────────────────────
+document.getElementById("roleToggle").addEventListener("click", (e) => {
+  const btn = e.target.closest(".role-btn");
+  if (!btn) return;
+  currentRole = btn.dataset.role;
+  document.querySelectorAll(".role-btn").forEach((b) => {
+    b.classList.toggle("active", b === btn);
+  });
+  activeCategory = "All";
+  searchInput.value = "";
+  loadTools();
+});
+
 async function loadTools() {
   try {
-    const res = await fetch("/api/tools");
+    const res = await fetch(`/api/tools?role=${currentRole}`);
     if (!res.ok) throw new Error("Failed to load tools");
     allTools = await res.json();
+    buildCategoryTabs(allTools);
     renderTools(allTools);
   } catch (err) {
     toolsGrid.innerHTML = `

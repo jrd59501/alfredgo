@@ -9,7 +9,9 @@ const publicDir = path.join(__dirname, "..", "public");
 app.use(express.static(publicDir));
 
 app.get("/api/tools", (req, res) => {
-  res.json(tools);
+  const role = req.query.role;
+  const list = tools[role] || tools.student;
+  res.json(list);
 });
 
 app.listen(PORT, () => {
