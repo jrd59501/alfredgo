@@ -66,24 +66,29 @@ const EVENT_STYLE = {
 };
 
 // Returns the next few upcoming events from today
-// Shows events within 7 days if there are at least 2, otherwise shows next 5
 function getUpcomingEvents() {
+  // Set today to midnight so time-of-day doesn't affect comparisons
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  // Calculate what day is 7 days from now
   const in7Days = new Date(today);
   in7Days.setDate(today.getDate() + 7);
 
   const upcoming = ACADEMIC_EVENTS
-    .map(e => ({ ...e, dateObj: new Date(e.date + "T00:00:00") }))
-    .filter(e => e.dateObj >= today)
-    .sort((a, b) => a.dateObj - b.dateObj);
+    .map(e => ({ ...e, dateObj: new Date(e.date + "T00:00:00") })) // convert date string to Date object
+    .filter(e => e.dateObj >= today)                                // remove past events
+    .sort((a, b) => a.dateObj - b.dateObj);                        // sort soonest first
 
+  // If there are at least 2 events within the next 7 days, show those
+  // Otherwise just show the next 5 upcoming events regardless of date
   const within7 = upcoming.filter(e => e.dateObj <= in7Days);
   return within7.length >= 2 ? within7 : upcoming.slice(0, 5);
 }
 
-// Formats a date as "Today", "Tomorrow", or "Mon DD"
+// Formats a date as "Today", "Tomorrow", or a short date like "May 9"
 function formatEventDate(dateObj) {
+  // Get today and tomorrow at midnight for clean comparison
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -91,31 +96,40 @@ function formatEventDate(dateObj) {
 
   if (dateObj.getTime() === today.getTime()) return "Today";
   if (dateObj.getTime() === tomorrow.getTime()) return "Tomorrow";
+
+  // Format as "May 9", "Jan 20", etc.
   return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 // Builds and renders the upcoming events strip at the top of the page
 function renderUpcoming() {
-  const strip = document.getElementById("upcomingStrip");
-  const sub   = document.getElementById("upcomingSub");
+  const strip = document.getElementById("upcomingStrip"); // the scrollable row of event cards
+  const sub   = document.getElementById("upcomingSub");   // the "next X events" label
   const events = getUpcomingEvents();
 
+  // If no upcoming events, show a placeholder message and exit
   if (events.length === 0) {
     strip.innerHTML = '<p class="upcoming-empty">No upcoming events — enjoy the break!</p>';
     sub.textContent = "";
     return;
   }
 
+  // Update the count label next to "Coming Up"
   sub.textContent = `next ${events.length} event${events.length !== 1 ? "s" : ""}`;
-  strip.innerHTML = "";
+  strip.innerHTML = ""; // clear any previously rendered cards
 
+  // Build and append a card for each upcoming event
   events.forEach(({ name, dateObj, type }) => {
-    const style = EVENT_STYLE[type] ?? EVENT_STYLE.classes;
-    const card  = document.createElement("div");
+    const style = EVENT_STYLE[type] ?? EVENT_STYLE.classes; // fall back to "classes" style if type is unknown
+
+    const card = document.createElement("div");
     card.className = "event-card";
     card.setAttribute("role", "listitem");
+
+    // Pass the event color and background into CSS via custom properties
     card.style.setProperty("--event-color", style.color);
     card.style.setProperty("--event-bg",    style.bg);
+
     card.innerHTML = `
       <span class="event-date">${formatEventDate(dateObj)}</span>
       <span class="event-name">${name}</span>
@@ -126,47 +140,49 @@ function renderUpcoming() {
 }
 
 // ── Tools ──────────────────────────────────────────────────────
-const searchInput = document.getElementById("searchInput");
-const toolsGrid = document.getElementById("toolsGrid");
+
+// Grab references to the main UI elements we'll be updating
+const searchInput  = document.getElementById("searchInput");
+const toolsGrid    = document.getElementById("toolsGrid");
 const categoryTabs = document.getElementById("categoryTabs");
 
-let allTools = [];
-let activeCategory = "All";
-let currentRole = "student"; // tracks which role is selected in the toggle
+let allTools      = [];         // full list of tools for the current role
+let activeCategory = "All";     // which category tab is selected
+let currentRole    = "student"; // which role is selected in the toggle
 
 // Lucide icon names mapped to each tool by ID
 // Full icon list at lucide.dev/icons
 const TOOL_ICONS = {
   // Student
-  1:  "book-open",       // My Learning
-  2:  "mail",            // Email
-  3:  "graduation-cap",  // Degree Works
-  4:  "calendar-check",  // Registration
-  5:  "calendar",        // Class Schedule
-  6:  "banknote",        // Financial Aid
-  7:  "credit-card",     // Student Billing
-  8:  "utensils",        // Dining Services
-  9:  "home",            // Housing Portal
-  10: "wrench",          // IT Help Desk
+  1:  "book-open",        // My Learning
+  2:  "mail",             // Email
+  3:  "graduation-cap",   // Degree Works
+  4:  "calendar-check",   // Registration
+  5:  "calendar",         // Class Schedule
+  6:  "banknote",         // Financial Aid
+  7:  "credit-card",      // Student Billing
+  8:  "utensils",         // Dining Services
+  9:  "home",             // Housing Portal
+  10: "wrench",           // IT Help Desk
   // Staff
-  11: "mail",            // Outlook
-  12: "message-square",  // Microsoft Teams
-  13: "layout-dashboard",// BannerWeb
-  14: "wrench",          // IT Help Desk
-  15: "printer",         // Pharos Packages
-  16: "book-open",       // Pharos Help
-  17: "briefcase",       // LinkedIn Learning
-  18: "bell-ring",       // RAVE Alerts
-  19: "car",             // Campus Parking
-  20: "shield",          // University Police
-  21: "flag",            // Pioneer Link
-  22: "activity",        // Health Portal
+  11: "mail",             // Outlook
+  12: "message-square",   // Microsoft Teams
+  13: "layout-dashboard", // BannerWeb
+  14: "wrench",           // IT Help Desk
+  15: "printer",          // Pharos Packages
+  16: "book-open",        // Pharos Help
+  17: "briefcase",        // LinkedIn Learning
+  18: "bell-ring",        // RAVE Alerts
+  19: "car",              // Campus Parking
+  20: "shield",           // University Police
+  21: "flag",             // Pioneer Link
+  22: "activity",         // Health Portal
   // Admin extras
-  23: "star",            // Starfish
-  24: "clock",           // Clockwork
-  25: "scale",           // Title IX
-  26: "file-text",       // Academic Complaint Form
-  27: "clipboard",       // Administrative Complaint Form
+  23: "star",             // Starfish
+  24: "clock",            // Clockwork
+  25: "scale",            // Title IX
+  26: "file-text",        // Academic Complaint Form
+  27: "clipboard",        // Administrative Complaint Form
 };
 
 // Color and background for each category badge on tool cards
@@ -186,12 +202,16 @@ const CATEGORY_STYLE = {
 // Builds the category filter tabs from the current tool list
 // Runs every time the role changes so tabs always match what's loaded
 function buildCategoryTabs(tools) {
+  // Pull unique category names from the tool list, prepend "All"
   const categories = ["All", ...new Set(tools.map(t => t.category))];
-  categoryTabs.innerHTML = "";
+
+  categoryTabs.innerHTML = ""; // clear old tabs before building new ones
+
+  // Create a button for each category
   categories.forEach((cat, i) => {
     const btn = document.createElement("button");
-    btn.className = "tab" + (i === 0 ? " active" : "");
-    btn.dataset.category = cat;
+    btn.className = "tab" + (i === 0 ? " active" : ""); // first tab ("All") starts active
+    btn.dataset.category = cat;                          // store category name on the element
     btn.setAttribute("role", "tab");
     btn.setAttribute("aria-selected", i === 0 ? "true" : "false");
     btn.textContent = cat;
@@ -199,19 +219,24 @@ function buildCategoryTabs(tools) {
   });
 }
 
-// Creates a single tool card element
+// Creates a single tool card element and returns it
 function createToolCard(tool) {
   const card = document.createElement("article");
   card.className = "tool-card";
   card.setAttribute("role", "button");
-  card.setAttribute("tabindex", "0");
+  card.setAttribute("tabindex", "0");              // makes the card keyboard-focusable
   card.setAttribute("aria-label", `Open ${tool.name}`);
 
+  // Look up the category color, fall back to Alfred State blue if category is unknown
   const style = CATEGORY_STYLE[tool.category] ?? { color: "#0f4c81", bg: "#dbeafe" };
+
+  // Pass the accent color into CSS so the top border and icon match the category
   card.style.setProperty("--card-accent", style.color);
 
+  // Look up the Lucide icon name, fall back to a generic link icon
   const icon = TOOL_ICONS[tool.id] ?? "link";
 
+  // Build the card's inner HTML
   card.innerHTML = `
     <span class="tool-icon" aria-hidden="true"><i data-lucide="${icon}"></i></span>
     <h2 class="tool-name">${tool.name}</h2>
@@ -222,16 +247,18 @@ function createToolCard(tool) {
   // Open the tool's link in a new tab when clicked or activated by keyboard
   const handleAction = () => {
     if (tool.link && tool.link !== "#") {
-      window.open(tool.link, "_blank", "noopener,noreferrer");
+      window.open(tool.link, "_blank", "noopener,noreferrer"); // noopener prevents the new tab from accessing this page
     } else {
-      alert(tool.name);
+      alert(tool.name); // fallback for tools without a link yet
     }
   };
 
   card.addEventListener("click", handleAction);
+
+  // Allow keyboard users to activate cards with Enter or Space
   card.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
+      e.preventDefault(); // prevent Space from scrolling the page
       handleAction();
     }
   });
@@ -241,8 +268,9 @@ function createToolCard(tool) {
 
 // Clears the grid and renders a new set of tool cards
 function renderTools(tools) {
-  toolsGrid.innerHTML = "";
+  toolsGrid.innerHTML = ""; // wipe whatever was there before
 
+  // Show a message if the search/filter returned nothing
   if (tools.length === 0) {
     toolsGrid.innerHTML = `
       <div class="empty-state">
@@ -254,68 +282,90 @@ function renderTools(tools) {
     return;
   }
 
+  // Add a card to the grid for each tool
   tools.forEach((tool) => toolsGrid.appendChild(createToolCard(tool)));
 
   // Convert all data-lucide attributes into actual SVG elements
+  // Must be called after the cards are in the DOM
   lucide.createIcons();
 }
 
 // Filters the tool list by search text and active category
 function filterTools(query, category) {
-  const q = query.trim().toLowerCase();
+  const q = query.trim().toLowerCase(); // normalize the search input
+
   return allTools.filter((tool) => {
+    // Check if the tool belongs to the selected category (or "All" is selected)
     const inCategory = category === "All" || tool.category === category;
+
+    // If no search text, just filter by category
     if (!q) return inCategory;
+
     const nameMatch = tool.name.toLowerCase().includes(q);
+
     // Tags let users search natural words like "food" instead of "Dining Services"
     const tagMatch = tool.tags.some((tag) => tag.toLowerCase().includes(q));
+
+    // Tool must match both the category AND the search text
     return inCategory && (nameMatch || tagMatch);
   });
 }
 
-// Re-renders the grid based on the current search and category
+// Re-renders the grid based on the current search input and active category
 function applyFilters() {
   renderTools(filterTools(searchInput.value, activeCategory));
 }
 
 // Handle category tab clicks
 categoryTabs.addEventListener("click", (e) => {
-  const tab = e.target.closest(".tab");
-  if (!tab) return;
-  activeCategory = tab.dataset.category;
+  const tab = e.target.closest(".tab"); // find the tab button that was clicked
+  if (!tab) return;                     // ignore clicks on the container itself
+
+  activeCategory = tab.dataset.category; // update the active category
+
+  // Update active styling and aria-selected on all tabs
   categoryTabs.querySelectorAll(".tab").forEach((t) => {
     t.classList.toggle("active", t === tab);
     t.setAttribute("aria-selected", t === tab ? "true" : "false");
   });
-  applyFilters();
+
+  applyFilters(); // re-render with the new category
 });
 
-// Re-filter as the user types
+// Re-filter the grid as the user types in the search box
 searchInput.addEventListener("input", applyFilters);
 
-// Handle role toggle (Student / Staff / Admin)
-// Switches the tool set and resets search and category
+// Handle role toggle clicks (Student / Staff / Admin)
 document.getElementById("roleToggle").addEventListener("click", (e) => {
-  const btn = e.target.closest(".role-btn");
-  if (!btn) return;
-  currentRole = btn.dataset.role;
+  const btn = e.target.closest(".role-btn"); // find the button that was clicked
+  if (!btn) return;                          // ignore clicks on the container
+
+  currentRole = btn.dataset.role; // update the current role
+
+  // Update active styling on all role buttons
   document.querySelectorAll(".role-btn").forEach((b) => {
     b.classList.toggle("active", b === btn);
   });
+
+  // Reset search and category so the new role starts fresh
   activeCategory = "All";
   searchInput.value = "";
-  loadTools();
+
+  loadTools(); // fetch the tool list for the new role
 });
 
-// Fetches the tool list from the server for the current role
+// Fetches the tool list from the server for the current role and renders everything
 async function loadTools() {
   try {
-    const res = await fetch(`/api/tools?role=${currentRole}`);
+    const res = await fetch(`/api/tools?role=${currentRole}`); // request tools for this role
     if (!res.ok) throw new Error("Failed to load tools");
-    allTools = await res.json();
-    buildCategoryTabs(allTools);
-    renderTools(allTools);
+
+    allTools = await res.json(); // store the full list for filtering later
+
+    buildCategoryTabs(allTools); // rebuild tabs to match this role's categories
+    renderTools(allTools);       // render all tools initially (no filter applied yet)
   } catch (err) {
+    // Show an error state if the fetch fails
     toolsGrid.innerHTML = `
       <div class="empty-state">
         <span class="empty-state-icon" aria-hidden="true">⚠️</span>
@@ -327,5 +377,6 @@ async function loadTools() {
   }
 }
 
+// Kick everything off on page load
 loadTools();
 renderUpcoming();
